@@ -27,3 +27,18 @@ export type Visit = {
   payment?: number;
   paymentStatus?: "Paid" | "Pending" | "Paid via UPI" | "Paid Via Cash" | "Paid via Card" | "Payment Error" | "UnPaid";
 };
+
+export type Appointment = {
+  id: string;
+  patientId: string;
+  patientName: string;
+  patientPhone: string;
+  date: string; // ISO date string
+  time: string; // HH:MM format
+  status: "Scheduled" | "Confirmed" | "Completed" | "Cancelled" | "No Show";
+  treatmentType?: string;
+  notes?: string;
+  duration?: number; // in minutes
+  createdAt: number;
+  updatedAt: number;
+};

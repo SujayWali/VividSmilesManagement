@@ -5,14 +5,65 @@ import { doc, setDoc } from "firebase/firestore";
 
 export default function SeedAdmin() {
   async function run() {
-    const email = prompt("Enter admin email (will be created if missing):") || "";
-    const password = prompt("Enter password:") || "";
-    try { await createUserWithEmailAndPassword(auth, email, password); }
-    catch { await signInWithEmailAndPassword(auth, email, password); }
-    await setDoc(doc(db, "users", auth.currentUser!.uid), {
-      uid: auth.currentUser!.uid, email, role: "admin", createdAt: Date.now()
-    }, { merge: true });
-    alert("Admin seeded. You can delete this page now.");
+    try {
+      const email = prompt("Enter admin email (will be created if missing):") || "";
+      const password = prompt("Enter password:") || "";
+      
+      if (!email || !password) {
+        alert("Email and password are required!");
+        return;
+      }
+
+      console.log("Attempting to create/sign in user with email:", email);
+      
+      let userCredential;
+      try {
+        // Try to create new user first
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        console.log("New user created successfully");
+      } catch (createError: any) {
+        console.log("User creation failed, trying to sign in:", createError.code);
+        
+        if (createError.code === "auth/email-already-in-use") {
+          // User exists, try to sign in
+          try {
+            userCredential = await signInWithEmailAndPassword(auth, email, password);
+            console.log("User signed in successfully");
+          } catch (signInError: any) {
+            console.error("Sign in failed:", signInError);
+            if (signInError.code === "auth/invalid-credential" || signInError.code === "auth/wrong-password") {
+              alert("Invalid email or password. Please check your credentials and try again.");
+            } else {
+              alert(`Authentication error: ${signInError.message}`);
+            }
+            return;
+          }
+        } else {
+          console.error("User creation failed:", createError);
+          alert(`Error creating user: ${createError.message}`);
+          return;
+        }
+      }
+
+      // Create/update user document in Firestore
+      if (auth.currentUser) {
+        console.log("Creating user document for UID:", auth.currentUser.uid);
+        await setDoc(doc(db, "users", auth.currentUser.uid), {
+          uid: auth.currentUser.uid, 
+          email, 
+          role: "admin", 
+          createdAt: Date.now()
+        }, { merge: true });
+        
+        console.log("User document created/updated successfully");
+        alert("Admin account setup successfully! You can now use the appointment management system.");
+      } else {
+        alert("Error: No current user found after authentication.");
+      }
+    } catch (error: any) {
+      console.error("Unexpected error in seed-admin:", error);
+      alert(`Unexpected error: ${error.message}`);
+    }
   }
   
   return (

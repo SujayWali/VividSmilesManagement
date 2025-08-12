@@ -11,8 +11,10 @@ export type Patient = {
   id: string;
   name: string;
   phone: string;
-  age: number;
-  gender: "Male" | "Female" | "Other";
+  age?: number;
+  gender?: "Male" | "Female" | "Other" | "Prefer not to say" | "";
+  email?: string;
+  address?: string;
   allergies?: string;
   history?: string;
   createdAt: number;
@@ -38,7 +40,6 @@ export type Appointment = {
   status: "Scheduled" | "Confirmed" | "Completed" | "Cancelled" | "No Show";
   treatmentType?: string;
   notes?: string;
-  duration?: number; // in minutes
   createdAt: number;
   updatedAt: number;
 };

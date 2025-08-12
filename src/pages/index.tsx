@@ -1,19 +1,63 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
-import { AppBar, Box, Button, Container, Stack, Toolbar, Typography, Paper, Card, CardContent, Avatar, Chip, Grid } from "@mui/material";
-import { Person, Group, AdminPanelSettings, Dashboard, ExitToApp, CalendarToday } from "@mui/icons-material";
+import { AppBar, Box, Button, Container, Stack, Toolbar, Typography, Paper, Card, CardContent, Avatar, Chip, Grid, Alert } from "@mui/material";
+import { Person, Group, AdminPanelSettings, Dashboard, ExitToApp, CalendarToday, Refresh } from "@mui/icons-material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, error, logout } = useAuth();
   const role = useRole();
   const router = useRouter();
 
   useEffect(()=>{
-    if (!loading && !user) router.push("/login");
-  }, [user, loading, router]);
+    if (!loading && !user && !error) router.push("/login");
+  }, [user, loading, error, router]);
+
+  // Show error state if Firebase configuration failed
+  if (error) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3 }}>
+        <Paper sx={{ p: 4, maxWidth: 600, width: '100%' }}>
+          <Stack spacing={3}>
+            <Typography variant="h4" color="error" textAlign="center">
+              🔧 Configuration Error
+            </Typography>
+            
+            <Alert severity="error" sx={{ textAlign: 'left' }}>
+              <Typography variant="body1" gutterBottom>
+                <strong>Authentication Error:</strong>
+              </Typography>
+              <Typography variant="body2">
+                {error}
+              </Typography>
+            </Alert>
+
+            <Typography variant="body2" color="text.secondary" textAlign="center">
+              This usually means Firebase environment variables are not properly configured.
+            </Typography>
+
+            <Stack direction="row" spacing={2} justifyContent="center">
+              <Button 
+                variant="contained" 
+                onClick={() => window.location.reload()}
+                startIcon={<Refresh />}
+              >
+                Retry
+              </Button>
+              <Button 
+                variant="outlined" 
+                onClick={() => window.location.href = '/debug'}
+              >
+                Debug Info
+              </Button>
+            </Stack>
+          </Stack>
+        </Paper>
+      </Box>
+    );
+  }
 
   if (loading || !user) return null;
 

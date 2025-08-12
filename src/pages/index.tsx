@@ -7,13 +7,53 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, error } = useAuth();
   const role = useRole();
   const router = useRouter();
 
   useEffect(()=>{
-    if (!loading && !user) router.push("/login");
-  }, [user, loading, router]);
+    if (!loading && !user && !error) router.push("/login");
+  }, [user, loading, router, error]);
+
+  // Show error state if Firebase configuration is broken
+  if (error) {
+    return (
+      <Box sx={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        bgcolor: '#f5f5f5',
+        p: 2
+      }}>
+        <Paper sx={{ p: 4, maxWidth: 600, textAlign: 'center' }}>
+          <Typography variant="h4" color="error" gutterBottom>
+            🚨 Configuration Error
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            {error}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            This usually means the Firebase environment variables are not set up correctly in Vercel.
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={() => window.location.reload()}
+            sx={{ mr: 2 }}
+          >
+            Retry
+          </Button>
+          <Button 
+            variant="outlined" 
+            href="https://console.firebase.google.com"
+            target="_blank"
+          >
+            Check Firebase Console
+          </Button>
+        </Paper>
+      </Box>
+    );
+  }
 
   if (loading || !user) return null;
 

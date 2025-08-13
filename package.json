@@ -16,9 +16,12 @@
     "@mui/material": "^5.15.20",
     "firebase": "^10.12.2",
     "next": "^14.2.31",
+    "quill": "^2.0.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.51.4",
+    "react-quill": "^2.0.0",
+    "react-quill-image-uploader": "^0.1.1",
     "twilio": "^5.8.0",
     "zod": "^3.23.8"
   },

@@ -22,6 +22,11 @@ service cloud.firestore {
         allow create: if isAdmin() || isManager();
         allow update, delete: if isAdmin();
       }
+      match /prescriptions/{prescriptionId} {
+        allow read, list: if isSignedIn();
+        allow create: if isAdmin() || isManager();
+        allow update, delete: if isAdmin();
+      }
     }
 
     match /appointments/{appointmentId} {

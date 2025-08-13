@@ -1,10 +1,11 @@
 import { db } from "@/lib/firebase";
 import { useRole } from "@/hooks/useRole";
 import { Visit } from "@/types/models";
-import { Delete, Send, Edit, Save, Cancel, ArrowBack, Image as ImageIcon, CloudUpload, Download } from "@mui/icons-material";
+import { Delete, Send, Edit, Save, Cancel, ArrowBack, Image as ImageIcon, CloudUpload, Download, LocalHospital } from "@mui/icons-material";
 import { AppBar, Box, Button, Container, IconButton, List, ListItem, ListItemText, Stack, TextField, Toolbar, Typography, Paper, Divider, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Chip, CircularProgress } from "@mui/material";
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css'; // Import Quill styles
@@ -533,18 +534,44 @@ For Appointments: +91 8920851141 | www.vividsmiles.in`;
           >
             {patient.name}
           </Typography>
-          <Button 
-            color="inherit" 
-            href="/patients"
-            startIcon={<ArrowBack />}
-            size="small"
-            sx={{ 
-              textTransform: 'none',
-              fontSize: { xs: '0.8rem', sm: '1rem' }
-            }}
-          >
-            Back
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button 
+              color="inherit" 
+              href="/"
+              sx={{ 
+                textTransform: 'none',
+                fontSize: { xs: '0.8rem', sm: '1rem' },
+                mr: 2
+              }}
+            >
+              🏠 Home
+            </Button>
+            <Button 
+              color="inherit" 
+              component={Link}
+              href={`/patients/${id}/tooth-chart`}
+              startIcon={<LocalHospital />}
+              size="small"
+              sx={{ 
+                textTransform: 'none',
+                fontSize: { xs: '0.8rem', sm: '1rem' }
+              }}
+            >
+              Tooth Chart
+            </Button>
+            <Button 
+              color="inherit" 
+              href="/patients"
+              startIcon={<ArrowBack />}
+              size="small"
+              sx={{ 
+                textTransform: 'none',
+                fontSize: { xs: '0.8rem', sm: '1rem' }
+              }}
+            >
+              Back
+            </Button>
+          </Stack>
         </Toolbar>
       </AppBar>
       

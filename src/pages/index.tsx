@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { AppBar, Box, Button, Container, Stack, Toolbar, Typography, Paper, Card, CardContent, Avatar, Chip, Grid, Alert } from "@mui/material";
-import { Person, Group, AdminPanelSettings, Dashboard, ExitToApp, CalendarToday, Refresh } from "@mui/icons-material";
+import { Person, Group, AdminPanelSettings, Dashboard, ExitToApp, CalendarToday, LocalHospital, Refresh } from "@mui/icons-material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -400,6 +400,88 @@ export default function Home() {
                   >
                     <CalendarToday sx={{ mr: 1, fontSize: { xs: 20, sm: 24 } }} />
                     Open Appointment Manager
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Tooth Chart Card */}
+            <Grid item xs={12} md={6} lg={4}>
+              <Card 
+                elevation={6}
+                sx={{ 
+                  height: '100%',
+                  borderRadius: { xs: 2, sm: 3 },
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+                  border: '1px solid rgba(76, 175, 80, 0.1)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: { xs: 'none', sm: 'translateY(-8px)' },
+                    boxShadow: '0 12px 40px rgba(76, 175, 80, 0.2)',
+                  }
+                }}
+              >
+                <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
+                  <Stack 
+                    direction={{ xs: 'column', sm: 'row' }} 
+                    spacing={{ xs: 2, sm: 3 }} 
+                    alignItems="center" 
+                    textAlign={{ xs: 'center', sm: 'left' }}
+                    mb={{ xs: 2, sm: 3 }}
+                  >
+                    <Avatar sx={{ 
+                      bgcolor: '#4CAF50', 
+                      width: { xs: 48, sm: 64 }, 
+                      height: { xs: 48, sm: 64 },
+                      boxShadow: '0 8px 24px rgba(76, 175, 80, 0.3)'
+                    }}>
+                      <LocalHospital sx={{ fontSize: { xs: 24, sm: 32 } }} />
+                    </Avatar>
+                    <Box>
+                      <Typography 
+                        variant="h4" 
+                        sx={{ 
+                          fontWeight: 'bold', 
+                          color: '#333',
+                          fontSize: { xs: '1.25rem', sm: '2.125rem' }
+                        }}
+                      >
+                        Tooth Chart
+                      </Typography>
+                      <Typography 
+                        variant="body1" 
+                        color="text.secondary" 
+                        sx={{ 
+                          mt: 1,
+                          fontSize: { xs: '0.9rem', sm: '1rem' }
+                        }}
+                      >
+                        Interactive dental charts for treatment tracking
+                      </Typography>
+                    </Box>
+                  </Stack>
+                  
+                  <Button
+                    component={Link}
+                    href="/patients"
+                    variant="contained"
+                    size="large"
+                    fullWidth
+                    sx={{
+                      borderRadius: { xs: 2, sm: 3 },
+                      textTransform: 'none',
+                      fontSize: { xs: '1rem', sm: '1.1rem' },
+                      py: { xs: 1.5, sm: 2 },
+                      background: 'linear-gradient(45deg, #4CAF50 30%, #66BB6A 90%)',
+                      boxShadow: '0 4px 16px rgba(76, 175, 80, 0.3)',
+                      '&:hover': {
+                        background: 'linear-gradient(45deg, #66BB6A 30%, #81C784 90%)',
+                        boxShadow: '0 8px 24px rgba(76, 175, 80, 0.4)',
+                      }
+                    }}
+                  >
+                    <LocalHospital sx={{ mr: 1, fontSize: { xs: 20, sm: 24 } }} />
+                    Access Tooth Charts
                   </Button>
                 </CardContent>
               </Card>

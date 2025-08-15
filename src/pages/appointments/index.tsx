@@ -504,7 +504,7 @@ export default function AppointmentsPage() {
           boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
           <IconButton
             component={Link}
             href="/"
@@ -514,13 +514,11 @@ export default function AppointmentsPage() {
           >
             <ArrowBack />
           </IconButton>
-          
           <CalendarToday sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
             Appointment Management
           </Typography>
-          
-          <Stack direction="row" spacing={2}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: { xs: '100%', sm: 'auto' }, mt: { xs: 2, sm: 0 } }}>
             <Button
               component={Link}
               href="/appointments/calendar"
@@ -528,7 +526,8 @@ export default function AppointmentsPage() {
               variant="outlined"
               sx={{ 
                 borderColor: 'rgba(255,255,255,0.3)',
-                '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' },
+                width: { xs: '100%', sm: 'auto' }
               }}
             >
               📅 Calendar View
@@ -539,7 +538,8 @@ export default function AppointmentsPage() {
               onClick={() => sendTodayReminders()}
               sx={{ 
                 borderColor: 'rgba(255,255,255,0.3)',
-                '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' }
+                '&:hover': { borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.1)' },
+                width: { xs: '100%', sm: 'auto' }
               }}
             >
               📱 Send Today's Reminders
@@ -549,7 +549,8 @@ export default function AppointmentsPage() {
               variant="contained"
               sx={{ 
                 backgroundColor: 'rgba(255,255,255,0.2)',
-                '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' }
+                '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' },
+                width: { xs: '100%', sm: 'auto' }
               }}
               onClick={() => {
                 setEditingAppointment(null);
@@ -566,20 +567,20 @@ export default function AppointmentsPage() {
       <Box sx={{ 
         minHeight: '100vh', 
         background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        py: 3
+        py: { xs: 1, sm: 3 }
       }}>
-        <Container maxWidth="xl">
+        <Container maxWidth="xl" sx={{ px: { xs: 0.5, sm: 2 } }}>
           {/* Today's Summary */}
-          <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid item xs={12} md={3}>
-              <Card elevation={4}>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card elevation={4} sx={{ mb: { xs: 2, sm: 0 } }}>
                 <CardContent>
                   <Stack direction="row" alignItems="center" spacing={2}>
                     <Avatar sx={{ bgcolor: '#4CAF50' }}>
                       <CalendarToday />
                     </Avatar>
                     <Box>
-                      <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                      <Typography variant="h4" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {todaysAppointments.length}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
@@ -590,16 +591,15 @@ export default function AppointmentsPage() {
                 </CardContent>
               </Card>
             </Grid>
-            
-            <Grid item xs={12} md={3}>
-              <Card elevation={4}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card elevation={4} sx={{ mb: { xs: 2, sm: 0 } }}>
                 <CardContent>
                   <Stack direction="row" alignItems="center" spacing={2}>
                     <Avatar sx={{ bgcolor: '#2196F3' }}>
                       <Schedule />
                     </Avatar>
                     <Box>
-                      <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                      <Typography variant="h4" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {appointments.filter(apt => apt.status === 'Scheduled').length}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
@@ -610,16 +610,15 @@ export default function AppointmentsPage() {
                 </CardContent>
               </Card>
             </Grid>
-            
-            <Grid item xs={12} md={3}>
-              <Card elevation={4}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card elevation={4} sx={{ mb: { xs: 2, sm: 0 } }}>
                 <CardContent>
                   <Stack direction="row" alignItems="center" spacing={2}>
                     <Avatar sx={{ bgcolor: '#FF9800' }}>
                       <Person />
                     </Avatar>
                     <Box>
-                      <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                      <Typography variant="h4" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {new Set(appointments.map(apt => apt.patientId)).size}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
@@ -630,16 +629,15 @@ export default function AppointmentsPage() {
                 </CardContent>
               </Card>
             </Grid>
-            
-            <Grid item xs={12} md={3}>
-              <Card elevation={4}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card elevation={4} sx={{ mb: { xs: 2, sm: 0 } }}>
                 <CardContent>
                   <Stack direction="row" alignItems="center" spacing={2}>
                     <Avatar sx={{ bgcolor: '#9C27B0' }}>
                       <Assessment />
                     </Avatar>
                     <Box>
-                      <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                      <Typography variant="h4" sx={{ fontWeight: 'bold', fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                         {appointments.filter(apt => apt.status === 'Completed').length}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
@@ -653,9 +651,9 @@ export default function AppointmentsPage() {
           </Grid>
 
           {/* Filters */}
-          <Card elevation={3} sx={{ mb: 3 }}>
+          <Card elevation={3} sx={{ mb: 2 }}>
             <CardContent>
-              <Stack spacing={3}>
+              <Stack spacing={2}>
                 {/* Date Filter Mode Toggle */}
                 <Box>
                   <FormControlLabel
@@ -694,7 +692,7 @@ export default function AppointmentsPage() {
                         onChange={(e) => setStartDate(e.target.value)}
                         InputLabelProps={{ shrink: true }}
                         size="small"
-                        sx={{ minWidth: 160 }}
+                        sx={{ minWidth: { xs: '100%', sm: 160 } }}
                       />
                       <TextField
                         label="End Date"
@@ -703,7 +701,7 @@ export default function AppointmentsPage() {
                         onChange={(e) => setEndDate(e.target.value)}
                         InputLabelProps={{ shrink: true }}
                         size="small"
-                        sx={{ minWidth: 160 }}
+                        sx={{ minWidth: { xs: '100%', sm: 160 } }}
                       />
                       <Button
                         variant="outlined"
@@ -715,6 +713,7 @@ export default function AppointmentsPage() {
                           setStartDate(today.toISOString().split('T')[0]);
                           setEndDate(nextWeek.toISOString().split('T')[0]);
                         }}
+                        sx={{ width: { xs: '100%', sm: 'auto' } }}
                       >
                         Next 7 Days
                       </Button>
@@ -728,6 +727,7 @@ export default function AppointmentsPage() {
                           setStartDate(today.toISOString().split('T')[0]);
                           setEndDate(nextMonth.toISOString().split('T')[0]);
                         }}
+                        sx={{ width: { xs: '100%', sm: 'auto' } }}
                       >
                         Next 30 Days
                       </Button>
@@ -740,17 +740,16 @@ export default function AppointmentsPage() {
                       onChange={(e) => setFilterDate(e.target.value)}
                       InputLabelProps={{ shrink: true }}
                       size="small"
-                      sx={{ minWidth: 160 }}
+                      sx={{ minWidth: { xs: '100%', sm: 160 } }}
                     />
                   )}
-                  
                   <TextField
                     label="Filter by Status"
                     select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
                     size="small"
-                    sx={{ minWidth: 150 }}
+                    sx={{ minWidth: { xs: '100%', sm: 150 } }}
                   >
                     <MenuItem value="All">All Status</MenuItem>
                     <MenuItem value="Scheduled">Scheduled</MenuItem>
@@ -759,7 +758,6 @@ export default function AppointmentsPage() {
                     <MenuItem value="Cancelled">Cancelled</MenuItem>
                     <MenuItem value="No Show">No Show</MenuItem>
                   </TextField>
-                  
                   <Button
                     variant="outlined"
                     onClick={() => {
@@ -774,13 +772,12 @@ export default function AppointmentsPage() {
                       }
                       setFilterStatus("All");
                     }}
+                    sx={{ width: { xs: '100%', sm: 'auto' } }}
                   >
                     Reset Filters
                   </Button>
-                  
-                  <Box sx={{ flexGrow: 1 }} />
-                  
-                  <Typography variant="body2" color="text.secondary">
+                  <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }} />
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: { xs: 2, md: 0 } }}>
                     Showing {filteredAppointments.length} of {appointments.length} appointments
                     {dateRangeMode && startDate && endDate && (
                       <span style={{ display: 'block', fontSize: '0.75rem' }}>
@@ -796,11 +793,10 @@ export default function AppointmentsPage() {
           {/* Appointments Table */}
           <Card elevation={3}>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                 <CalendarToday sx={{ mr: 1 }} />
                 Appointments
               </Typography>
-              
               {loadingAppointments ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <Typography>Loading appointments...</Typography>
@@ -812,7 +808,7 @@ export default function AppointmentsPage() {
                   </Typography>
                   <Button
                     variant="contained"
-                    sx={{ mt: 2 }}
+                    sx={{ mt: 2, width: { xs: '100%', sm: 'auto' } }}
                     onClick={() => {
                       setEditingAppointment(null);
                       resetForm();
@@ -823,92 +819,94 @@ export default function AppointmentsPage() {
                   </Button>
                 </Box>
               ) : (
-                <TableContainer component={Paper} variant="outlined">
-                  <Table>
-                    <TableHead>
-                      <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                        <TableCell><strong>Patient</strong></TableCell>
-                        <TableCell><strong>Date & Time</strong></TableCell>
-                        <TableCell><strong>Treatment</strong></TableCell>
-                        <TableCell><strong>Status</strong></TableCell>
-                        <TableCell><strong>Actions</strong></TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {filteredAppointments.map((appointment) => (
-                        <TableRow key={appointment.id} hover>
-                          <TableCell>
-                            <Box>
-                              <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                                {appointment.patientName}
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                {appointment.patientPhone}
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Box>
-                              <Typography variant="body2">
-                                {new Date(appointment.date).toLocaleDateString()}
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                {appointment.time}
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">
-                              {appointment.treatmentType || 'Not specified'}
-                            </Typography>
-                            {appointment.notes && (
-                              <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                                {appointment.notes.substring(0, 50)}
-                                {appointment.notes.length > 50 ? '...' : ''}
-                              </Typography>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={appointment.status}
-                              color={STATUS_COLORS[appointment.status]}
-                              size="small"
-                              icon={appointment.status === 'Completed' ? <CheckCircle /> : undefined}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Stack direction="row" spacing={1}>
-                              <IconButton
-                                size="small"
-                                onClick={() => handleEditAppointment(appointment)}
-                                color="primary"
-                                title="Edit Appointment"
-                              >
-                                <Edit fontSize="small" />
-                              </IconButton>
-                              <IconButton
-                                size="small"
-                                onClick={() => sendWhatsAppReminder(appointment)}
-                                sx={{ color: '#25D366' }}
-                                title="Send WhatsApp Reminder"
-                              >
-                                <WhatsApp fontSize="small" />
-                              </IconButton>
-                              <IconButton
-                                size="small"
-                                onClick={() => handleDeleteAppointment(appointment.id)}
-                                color="error"
-                                title="Delete Appointment"
-                              >
-                                <Delete fontSize="small" />
-                              </IconButton>
-                            </Stack>
-                          </TableCell>
+                <Box sx={{ width: '100%', overflowX: 'auto' }}>
+                  <TableContainer component={Paper} variant="outlined" sx={{ minWidth: 600 }}>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                          <TableCell><strong>Patient</strong></TableCell>
+                          <TableCell><strong>Date & Time</strong></TableCell>
+                          <TableCell><strong>Treatment</strong></TableCell>
+                          <TableCell><strong>Status</strong></TableCell>
+                          <TableCell><strong>Actions</strong></TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                      </TableHead>
+                      <TableBody>
+                        {filteredAppointments.map((appointment) => (
+                          <TableRow key={appointment.id} hover>
+                            <TableCell sx={{ minWidth: 120 }}>
+                              <Box>
+                                <Typography variant="body2" sx={{ fontWeight: 'medium', fontSize: { xs: '0.95rem', sm: '1rem' } }}>
+                                  {appointment.patientName}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
+                                  {appointment.patientPhone}
+                                </Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell sx={{ minWidth: 120 }}>
+                              <Box>
+                                <Typography variant="body2" sx={{ fontSize: { xs: '0.95rem', sm: '1rem' } }}>
+                                  {new Date(appointment.date).toLocaleDateString()}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
+                                  {appointment.time}
+                                </Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell sx={{ minWidth: 120 }}>
+                              <Typography variant="body2" sx={{ fontSize: { xs: '0.95rem', sm: '1rem' } }}>
+                                {appointment.treatmentType || 'Not specified'}
+                              </Typography>
+                              {appointment.notes && (
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
+                                  {appointment.notes.substring(0, 50)}
+                                  {appointment.notes.length > 50 ? '...' : ''}
+                                </Typography>
+                              )}
+                            </TableCell>
+                            <TableCell sx={{ minWidth: 100 }}>
+                              <Chip
+                                label={appointment.status}
+                                color={STATUS_COLORS[appointment.status]}
+                                size="small"
+                                icon={appointment.status === 'Completed' ? <CheckCircle /> : undefined}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ minWidth: 120 }}>
+                              <Stack direction="row" spacing={1}>
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleEditAppointment(appointment)}
+                                  color="primary"
+                                  title="Edit Appointment"
+                                >
+                                  <Edit fontSize="small" />
+                                </IconButton>
+                                <IconButton
+                                  size="small"
+                                  onClick={() => sendWhatsAppReminder(appointment)}
+                                  sx={{ color: '#25D366' }}
+                                  title="Send WhatsApp Reminder"
+                                >
+                                  <WhatsApp fontSize="small" />
+                                </IconButton>
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleDeleteAppointment(appointment.id)}
+                                  color="error"
+                                  title="Delete Appointment"
+                                >
+                                  <Delete fontSize="small" />
+                                </IconButton>
+                              </Stack>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
               )}
             </CardContent>
           </Card>

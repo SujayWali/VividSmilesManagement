@@ -119,15 +119,7 @@ export default function PatientDetails() {
     if (patient && visits.length >= 0) {
       const latest = visits[0];
       const meds = (latest?.medicines || []).join(", ");
-      const defaultMessage = `Vivid Smiles Complete Dental Care
-Date: ${latest?.date ?? ""}
-Name: ${patient.name}
-Age: ${patient.age} | Gender: ${patient.gender}
-Dental History: ${patient.history || "First visit"}
-Treatment: ${latest?.treatment || "-"}
-Prescribed: ${meds || "-"}
-
-For Appointments: +91 8920851141 | www.vividsmiles.in`;
+      const defaultMessage = `Vivid Smiles Complete Dental Care\nDate: ${latest?.date ?? ""}\n\nName: ${patient.name}\n\nAge: ${patient.age} | Gender: ${patient.gender}\n\nDental History: ${patient.history || "First visit"}\n\nTreatment: ${latest?.treatment || "-"}\n\nPrescribed: ${meds || "-"}\n\nFor Appointments: +91 8920851141 | www.vividsmiles.in`;
       
       // Only update if we're not currently editing the message
       if (!isEditingMessage) {
@@ -173,15 +165,7 @@ For Appointments: +91 8920851141 | www.vividsmiles.in`;
     if (!patient) return "";
     const latest = visits[0];
     const meds = (latest?.medicines || []).join(", ");
-    return `Vivid Smiles Complete Dental Care
-Date: ${latest?.date ?? ""}
-Name: ${patient.name}
-Age: ${patient.age} | Gender: ${patient.gender}
-Dental History: ${patient.history || "First visit"}
-Treatment: ${latest?.treatment || "-"}
-Prescribed: ${meds || "-"}
-
-For Appointments: +91 8920851141 | www.vividsmiles.in`;
+    return `Vivid Smiles Complete Dental Care\nDate: ${latest?.date ?? ""}\n\nName: ${patient.name}\n\nAge: ${patient.age} | Gender: ${patient.gender}\n\nDental History: ${patient.history || "First visit"}\n\nTreatment: ${latest?.treatment || "-"}\n\nPrescribed: ${meds || "-"}\n\nFor Appointments: +91 8920851141 | www.vividsmiles.in`;
   }, [patient, visits]);
 
   const getPaymentStatusColor = (status: string) => {
@@ -428,8 +412,8 @@ For Appointments: +91 8920851141 | www.vividsmiles.in`;
       .replace(/<h[1-6][^>]*>(.*?)<\/h[1-6]>/gi, '*$1*\n\n') // Headers to bold
       .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '*$1*') // Strong to bold
       .replace(/<b[^>]*>(.*?)<\/b>/gi, '*$1*') // Bold to bold
-      .replace(/<em[^>]*>(.*?)<\/em>/gi, '_$1_') // Em to italic
-      .replace(/<i[^>]*>(.*?)<\/i>/gi, '_$1_') // Italic to italic
+      .replace(/<em[^>]*>(.*?)<\/em>/gi, '$1') // Em: remove tag, no italics
+      .replace(/<i[^>]*>(.*?)<\/i>/gi, '$1') // Italic: remove tag, no italics
       .replace(/<u[^>]*>(.*?)<\/u>/gi, '$1') // Remove underline tags
       .replace(/<strike[^>]*>(.*?)<\/strike>/gi, '~$1~') // Strike to strikethrough
       .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n') // Paragraphs with double line breaks

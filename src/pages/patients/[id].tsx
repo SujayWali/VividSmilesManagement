@@ -1,3 +1,73 @@
+/**
+ * Audio Recorder for Doctor-Patient Conversations
+ * 
+ * 🎯 Features:
+ * - Record microphone input using the browser's MediaRecorder API
+ * - Provide buttons to Start, Stop, and Download the audio
+ * - Save audio as .webm Blob and allow manual download
+ * - (Optional) Convert downloaded .webm to .mp3 using external tools like ffmpeg
+ * 
+ * 🧠 Notes:
+ * - Fully frontend-only (no backend required)
+ * - Runs locally in browser, no hosting needed
+ * - Should include playback and download functionality
+ * - Provide timestamp-based filename like conversation_2025-08-15T14-30.webm
+ */
+
+
+
+function AudioRecorder() {
+  const [recording, setRecording] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+  const startRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorderRef.current = new MediaRecorder(stream);
+    audioChunksRef.current = [];
+    mediaRecorderRef.current.ondataavailable = (e) => {
+      if (e.data.size > 0) audioChunksRef.current.push(e.data);
+    };
+    mediaRecorderRef.current.onstop = () => {
+      const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+      setAudioUrl(URL.createObjectURL(blob));
+    };
+    mediaRecorderRef.current.start();
+    setRecording(true);
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setRecording(false);
+  };
+
+  const downloadAudio = () => {
+    if (!audioUrl) return;
+    const a = document.createElement("a");
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const timestamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}-${pad(now.getMinutes())}`;
+    a.href = audioUrl;
+    a.download = `conversation_${timestamp}.webm`;
+    a.click();
+  };
+
+  return (
+    <Box sx={{ mb: 3 }}>
+      <Typography variant="h6" sx={{ mb: 1 }}>🎤 Audio Recorder</Typography>
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
+        <Button onClick={startRecording} disabled={recording} variant="contained">Start Recording</Button>
+        <Button onClick={stopRecording} disabled={!recording} variant="outlined">Stop</Button>
+        <Button onClick={downloadAudio} disabled={!audioUrl} variant="outlined">Download (.webm)</Button>
+      </Stack>
+      {audioUrl && <audio src={audioUrl} controls />}
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+        Note: The file is recorded as .webm.
+      </Typography>
+    </Box>
+  );
+}
 import { db } from "@/lib/firebase";
 import { useRole } from "@/hooks/useRole";
 import { Visit } from "@/types/models";
@@ -6,7 +76,7 @@ import { AppBar, Box, Button, Container, IconButton, List, ListItem, ListItemTex
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
@@ -14,6 +84,7 @@ import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export default function PatientDetails() {
+  // ...existing code...
   const router = useRouter();
   const id = router.query.id as string | undefined;
   const role = useRole();
@@ -1208,6 +1279,13 @@ For Appointments: +91 8920851141 | www.vividsmiles.in`;
           </Paper>
         )}
 
+        <br />
+
+              {/* Audio Recorder Section */}
+      <Paper elevation={1} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 } }}>
+        <AudioRecorder />
+      </Paper>
+
         {/* WhatsApp Rich Message */}
         <Paper elevation={1} sx={{ p: { xs: 2, sm: 3 } }}>
           <Stack 
@@ -1434,6 +1512,7 @@ For Appointments: +91 8920851141 | www.vividsmiles.in`;
             </Box>
           )}
         </Paper>
+   
       </Container>
 
       {/* Delete Confirmation Dialog */}
@@ -1460,6 +1539,7 @@ For Appointments: +91 8920851141 | www.vividsmiles.in`;
           </Button>
         </DialogActions>
       </Dialog>
+     
     </>
   );
 }

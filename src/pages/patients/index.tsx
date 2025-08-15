@@ -1,17 +1,22 @@
 import { db } from "@/lib/firebase";
 import { Patient } from "@/types/models";
-import { Add, Person, Phone, History } from "@mui/icons-material";
-import { AppBar, Box, Button, Card, CardContent, Container, Dialog, DialogContent, FormControl, IconButton, InputLabel, List, ListItem, ListItemText, MenuItem, Select, Stack, TextField, Toolbar, Typography, Paper, Avatar, Chip, Pagination, Divider } from "@mui/material";
-import { collection, addDoc, serverTimestamp, onSnapshot, orderBy, query } from "firebase/firestore";
+import { Add, Person, Phone, History, Delete } from "@mui/icons-material";
+import { AppBar, Box, Button, Card, CardContent, Container, Dialog, DialogContent, FormControl, IconButton, InputLabel, List, ListItem, ListItemText, MenuItem, Select, Stack, TextField, Toolbar, Typography, Paper, Avatar, Chip, Pagination, Divider, DialogTitle, DialogActions, DialogContentText } from "@mui/material";
+import { collection, addDoc, serverTimestamp, onSnapshot, orderBy, query, doc, deleteDoc, getDocs } from "firebase/firestore";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useRole } from "@/hooks/useRole";
 
 export default function Patients() {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Patient[]>([]);
   const [filter, setFilter] = useState("");
   const [page, setPage] = useState(1);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const itemsPerPage = 20;
+  const role = useRole();
 
   useEffect(()=>{
     const q = query(collection(db, "patients"), orderBy("name"));
@@ -56,6 +61,44 @@ export default function Patients() {
     setOpen(false);
   }
 
+  async function handleDeletePatient(patient: Patient) {
+    setPatientToDelete(patient);
+    setDeleteDialogOpen(true);
+  }
+
+  async function confirmDeletePatient() {
+    if (!patientToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      // Delete all visits for this patient
+      const visitsSnapshot = await getDocs(collection(db, "patients", patientToDelete.id, "visits"));
+      const visitDeletePromises = visitsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(visitDeletePromises);
+
+      // Delete all prescriptions for this patient
+      const prescriptionsSnapshot = await getDocs(collection(db, "patients", patientToDelete.id, "prescriptions"));
+      const prescriptionDeletePromises = prescriptionsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(prescriptionDeletePromises);
+
+      // Delete the patient document
+      await deleteDoc(doc(db, "patients", patientToDelete.id));
+      
+      setDeleteDialogOpen(false);
+      setPatientToDelete(null);
+    } catch (error) {
+      console.error("Error deleting patient:", error);
+      alert("Failed to delete patient. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
+  function cancelDeletePatient() {
+    setDeleteDialogOpen(false);
+    setPatientToDelete(null);
+  }
+
   return (
     <>
       <AppBar position="static" color="primary">
@@ -72,10 +115,11 @@ export default function Patients() {
           </Typography>
           <Button 
             color="inherit" 
-            href="/" 
+            href="/"
             sx={{ 
               textTransform: 'none',
-              fontSize: { xs: '0.8rem', sm: '1rem' }
+              fontSize: { xs: '0.8rem', sm: '1rem' },
+              mr: 2
             }}
           >
             🏠 Home
@@ -239,19 +283,40 @@ export default function Patients() {
                       </Stack>
                     </Box>
                     
-                    <Button 
-                      variant="contained" 
-                      component={Link} 
-                      href={`/patients/${p.id}`}
-                      size="small"
-                      sx={{ 
-                        textTransform: 'none',
-                        minWidth: { xs: 80, sm: 120 },
-                        fontSize: { xs: '0.8rem', sm: '0.875rem' }
-                      }}
-                    >
-                      View
-                    </Button>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Button 
+                        variant="contained" 
+                        component={Link} 
+                        href={`/patients/${p.id}`}
+                        size="small"
+                        sx={{ 
+                          textTransform: 'none',
+                          minWidth: { xs: 80, sm: 120 },
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                        }}
+                      >
+                        View
+                      </Button>
+                      
+                      {role === "admin" && (
+                        <IconButton 
+                          onClick={() => handleDeletePatient(p)}
+                          color="error"
+                          size="small"
+                          sx={{
+                            bgcolor: 'error.light',
+                            color: 'white',
+                            '&:hover': { 
+                              bgcolor: 'error.main' 
+                            },
+                            width: { xs: 32, sm: 36 },
+                            height: { xs: 32, sm: 36 }
+                          }}
+                        >
+                          <Delete sx={{ fontSize: { xs: 16, sm: 20 } }} />
+                        </IconButton>
+                      )}
+                    </Stack>
                   </Stack>
                 </ListItem>
                 {index < paginatedItems.length - 1 && <Divider />}
@@ -441,6 +506,56 @@ export default function Patients() {
             </Stack>
           </Box>
         </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={cancelDeletePatient}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle id="delete-dialog-title" sx={{ color: 'error.main', fontWeight: 'bold' }}>
+          🗑️ Delete Patient Record
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description" sx={{ mb: 2 }}>
+            Are you sure you want to permanently delete <strong>{patientToDelete?.name}</strong>'s record?
+          </DialogContentText>
+          <DialogContentText sx={{ color: 'error.main', fontWeight: 500 }}>
+            ⚠️ This action will delete:
+          </DialogContentText>
+          <Box component="ul" sx={{ mt: 1, pl: 3, color: 'text.secondary' }}>
+            <li>Patient information and medical history</li>
+            <li>All visit records and treatments</li>
+            <li>All uploaded prescriptions and documents</li>
+            <li>All related data permanently</li>
+          </Box>
+          <DialogContentText sx={{ mt: 2, fontWeight: 500, color: 'error.main' }}>
+            This action cannot be undone!
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, pt: 1 }}>
+          <Button 
+            onClick={cancelDeletePatient} 
+            color="primary"
+            variant="outlined"
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={confirmDeletePatient} 
+            color="error" 
+            variant="contained"
+            disabled={isDeleting}
+            sx={{ minWidth: 120 }}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete Forever'}
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   );

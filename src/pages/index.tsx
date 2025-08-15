@@ -406,7 +406,7 @@ export default function Home() {
             </Grid>
 
             {/* Tooth Chart Card */}
-            <Grid item xs={12} md={6} lg={4}>
+            {/* <Grid item xs={12} md={6} lg={4}>
               <Card 
                 elevation={6}
                 sx={{ 
@@ -485,7 +485,7 @@ export default function Home() {
                   </Button>
                 </CardContent>
               </Card>
-            </Grid>
+            </Grid> */}
 
             {/* Admin Panel Card */}
             {role === "admin" && (

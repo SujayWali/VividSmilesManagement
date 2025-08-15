@@ -24,7 +24,8 @@
     "react-quill-image-uploader": "^0.1.1",
     "twilio": "^5.8.0",
     "zod": "^3.25.76",
-    "zustand": "^5.0.7"
+    "zustand": "^5.0.7",
+    "zustand-indexeddb-storage": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",

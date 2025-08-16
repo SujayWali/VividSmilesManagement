@@ -79,7 +79,7 @@ export default function Home() {
               height: { xs: 40, sm: 48 },
               fontSize: { xs: '1.2rem', sm: '1.5rem' }
             }}>
-              🦷
+              <img src="/assets/images/favicon.svg" alt="Vivid Smiles Logo" style={{ height: '1.5em', verticalAlign: 'middle' }} />
             </Avatar>
             <Box>
               <Typography 
@@ -616,7 +616,7 @@ export default function Home() {
                 fontSize: { xs: '1.25rem', sm: '1.5rem' }
               }}
             >
-              🏥 Vivid Smiles Complete Dental Care
+              <img src="/assets/images/logosvg.svg" alt="Vivid Smiles Logo" style={{ height: '1.5em', verticalAlign: 'middle', marginRight: '0.5em' }} />
             </Typography>
             <Typography 
               variant="body1" 

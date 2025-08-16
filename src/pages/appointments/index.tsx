@@ -468,26 +468,30 @@ export default function AppointmentsPage() {
     setIsAddingNewPatient(false);
   };
 
-  const filteredAppointments = appointments.filter(appointment => {
-    // Date filtering logic
-    let dateMatch = true;
-    if (dateRangeMode) {
-      // Date range filtering
-      if (startDate && endDate) {
-        dateMatch = appointment.date >= startDate && appointment.date <= endDate;
-      } else if (startDate) {
-        dateMatch = appointment.date >= startDate;
-      } else if (endDate) {
-        dateMatch = appointment.date <= endDate;
+  const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
+
+  useEffect(() => {
+    const result = appointments.filter(appointment => {
+      // Date filtering logic
+      let dateMatch = true;
+      if (dateRangeMode) {
+        // Date range filtering
+        if (startDate && endDate) {
+          dateMatch = appointment.date >= startDate && appointment.date <= endDate;
+        } else if (startDate) {
+          dateMatch = appointment.date >= startDate;
+        } else if (endDate) {
+          dateMatch = appointment.date <= endDate;
+        }
+      } else {
+        // Single date filtering
+        dateMatch = filterDate === "" || appointment.date === filterDate;
       }
-    } else {
-      // Single date filtering
-      dateMatch = filterDate === "" || appointment.date === filterDate;
-    }
-    
-    const statusMatch = filterStatus === "All" || appointment.status === filterStatus;
-    return dateMatch && statusMatch;
-  });
+      const statusMatch = filterStatus === "All" || appointment.status === filterStatus;
+      return dateMatch && statusMatch;
+    });
+    setFilteredAppointments(result);
+  }, [appointments, startDate, endDate, dateRangeMode, filterDate, filterStatus]);
 
   const todaysAppointments = appointments.filter(apt => 
     apt.date === new Date().toISOString().split('T')[0]

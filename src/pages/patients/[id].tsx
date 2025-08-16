@@ -630,9 +630,9 @@ export default function PatientDetails() {
         </Toolbar>
       </AppBar>
       
-      <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3 }, px: { xs: 1, sm: 3 } }}>
+  <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3 }, px: { xs: 1, sm: 2 } }}>
         {/* Patient Info */}
-        <Paper elevation={1} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 } }}>
+  <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, borderRadius: 3, background: 'linear-gradient(135deg, #f5f7fa 0%, #e3e6ee 100%)', maxWidth: 1200, mx: 'auto', width: { xs: '100%', sm: '98%' } }}>
           <Stack 
             direction={{ xs: 'column', sm: 'row' }} 
             spacing={2} 
@@ -791,7 +791,7 @@ export default function PatientDetails() {
         </Paper>
 
         {/* Add Visit Form */}
-        <Paper elevation={1} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 } }}>
+  <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, borderRadius: 3, background: 'linear-gradient(135deg, #f5f7fa 0%, #e3e6ee 100%)', maxWidth: 1200, mx: 'auto', width: { xs: '100%', sm: '98%' } }}>
           <Typography 
             variant="h6" 
             gutterBottom
@@ -868,7 +868,7 @@ export default function PatientDetails() {
         </Paper>
 
         {/* Visit History */}
-        <Paper elevation={1} sx={{ mb: { xs: 2, sm: 3 } }}>
+  <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, borderRadius: 3, background: 'linear-gradient(135deg, #f5f7fa 0%, #e3e6ee 100%)', maxWidth: 1200, mx: 'auto', width: { xs: '100%', sm: '98%' } }}>
           <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: 1, borderColor: 'divider' }}>
             <Typography 
               variant="h6"
@@ -989,7 +989,7 @@ export default function PatientDetails() {
         </Paper>
 
         {/* Patient Notes */}
-        <Paper elevation={1} sx={{ mb: { xs: 2, sm: 3 } }}>
+  <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, borderRadius: 3, background: 'linear-gradient(135deg, #f5f7fa 0%, #e3e6ee 100%)', maxWidth: 1200, mx: 'auto', width: { xs: '100%', sm: '98%' } }}>
           <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: 1, borderColor: 'divider' }}>
             <Stack 
               direction={{ xs: 'column', sm: 'row' }} 
@@ -1118,7 +1118,7 @@ export default function PatientDetails() {
         </Paper>
 
         {/* Upload Prescription */}
-        <Paper elevation={1} sx={{ mb: { xs: 2, sm: 3 } }}>
+  <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, borderRadius: 3, background: 'linear-gradient(135deg, #f5f7fa 0%, #e3e6ee 100%)', maxWidth: 1200, mx: 'auto', width: { xs: '100%', sm: '98%' } }}>
           <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: 1, borderColor: 'divider' }}>
             <Typography 
               variant="h6"
@@ -1266,12 +1266,12 @@ export default function PatientDetails() {
         <br />
 
               {/* Audio Recorder Section */}
-      <Paper elevation={1} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 } }}>
+  <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, borderRadius: 3, background: 'linear-gradient(135deg, #f5f7fa 0%, #e3e6ee 100%)', maxWidth: 1200, mx: 'auto', width: { xs: '100%', sm: '98%' } }}>
         <AudioRecorder />
       </Paper>
 
         {/* WhatsApp Rich Message */}
-        <Paper elevation={1} sx={{ p: { xs: 2, sm: 3 } }}>
+  <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, background: 'linear-gradient(135deg, #f5f7fa 0%, #e3e6ee 100%)', maxWidth: 1200, mx: 'auto', width: { xs: '100%', sm: '98%' } }}>
           <Stack 
             direction={{ xs: 'column', sm: 'row' }} 
             spacing={2} 

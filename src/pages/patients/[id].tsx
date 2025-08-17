@@ -147,8 +147,12 @@ export default function PatientDetails() {
       if (!richTextMessage) {
         const latest = visits[0];
         const meds = (latest?.medicines || []).join(", ");
+        const pad = (n: number) => n.toString().padStart(2, "0");
+        const now = new Date();
+        const todayFormatted = `${pad(now.getMonth()+1)}-${pad(now.getDate())}-${now.getFullYear()}`;
+        const messageDate = latest?.date ?? todayFormatted;
         const defaultRichMessage = `<h3>Vivid Smiles Complete Dental Care</h3>
-<p><strong>Date:</strong> ${latest?.date ?? ""}</p>
+<p><strong>Date:</strong> ${messageDate}</p>
 <p><strong>Name:</strong> ${patient.name}</p>
 <p><strong>Age:</strong> ${patient.age} | <strong>Gender:</strong> ${patient.gender}</p>
 <p><strong>Dental History:</strong> ${patient.history || "First visit"}</p>

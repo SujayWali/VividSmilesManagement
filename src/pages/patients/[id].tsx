@@ -301,6 +301,10 @@ export default function PatientDetails() {
   };
 
   async function savePatientInfo() {
+    if (!editablePatient.address || editablePatient.address.trim() === "") {
+  alert("Address is required.");
+  return;
+}
     if (!id || !editablePatient) return;
     try {
       await updateDoc(doc(db, "patients", id), {
@@ -309,7 +313,8 @@ export default function PatientDetails() {
         age: editablePatient.age,
         gender: editablePatient.gender,
         history: editablePatient.history,
-        allergies: editablePatient.allergies
+        allergies: editablePatient.allergies,
+        address: editablePatient.address
       });
       setIsEditingPatient(false);
     } catch (error) {
@@ -725,6 +730,16 @@ export default function PatientDetails() {
                   </Select>
                 </FormControl>
               </Stack>
+             <TextField
+                label="Address"
+                value={editablePatient.address || ""}
+                onChange={(e) => setEditablePatient({...editablePatient, address: e.target.value})}
+                required
+                fullWidth
+                size="small"
+                sx={{ mb: 2 }}
+                placeholder="Enter address..."
+              />
               <TextField
                 label="Dental History"
                 value={editablePatient.history}

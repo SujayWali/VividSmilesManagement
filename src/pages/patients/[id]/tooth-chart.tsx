@@ -437,8 +437,8 @@ export default function ToothChart() {
               Upper Jaw
             </Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={4} justifyContent="center">
-              {renderQuadrant(ADULT_TEETH.upperLeft, 'Upper Left', true)}
-              {renderQuadrant(ADULT_TEETH.upperRight, 'Upper Right')}
+              {renderQuadrant(ADULT_TEETH.upperLeft, 'Upper Left')}
+              {renderQuadrant(ADULT_TEETH.upperRight, 'Upper Right', true)}
             </Stack>
           </Box>
 
@@ -448,8 +448,8 @@ export default function ToothChart() {
               Lower Jaw
             </Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={4} justifyContent="center">
-              {renderQuadrant(ADULT_TEETH.lowerLeft, 'Lower Left', true)}
-              {renderQuadrant(ADULT_TEETH.lowerRight, 'Lower Right')}
+              {renderQuadrant(ADULT_TEETH.lowerLeft, 'Lower Left')}
+              {renderQuadrant(ADULT_TEETH.lowerRight, 'Lower Right', true)}
             </Stack>
           </Box>
         </Paper>

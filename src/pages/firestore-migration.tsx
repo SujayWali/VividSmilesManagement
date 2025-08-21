@@ -116,6 +116,12 @@ export default function FirestoreMigration() {
           hasPatientChanges = true;
           addLog(`  - Set default medicalHistory: None`);
         }
+          // Migration: Ensure address field exists
+          if (!patientData.address) {
+            patientChanges.address = "Unknown";
+            hasPatientChanges = true;
+            addLog(`  - Set default address: Unknown`);
+          }
         
         // Update patient if changes exist
         if (hasPatientChanges) {

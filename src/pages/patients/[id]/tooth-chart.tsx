@@ -71,16 +71,12 @@ const TREATMENT_TYPES = {
   other: { label: 'Other', color: '#795548', icon: '📝' }
 };
 
-// Adult tooth numbering (32 teeth)
-const ADULT_TEETH = {
-  // Upper right (1-8)
-  upperRight: [1, 2, 3, 4, 5, 6, 7, 8],
-  // Upper left (9-16)
-  upperLeft: [9, 10, 11, 12, 13, 14, 15, 16],
-  // Lower left (17-24)
-  lowerLeft: [17, 18, 19, 20, 21, 22, 23, 24],
-  // Lower right (25-32)
-  lowerRight: [25, 26, 27, 28, 29, 30, 31, 32]
+// FDI tooth numbering system (permanent teeth)
+const FDI_TEETH = {
+  upperRight: [18, 17, 16, 15, 14, 13, 12, 11], // Quadrant 1 (right to left, patient perspective)
+  upperLeft: [21, 22, 23, 24, 25, 26, 27, 28],  // Quadrant 2 (left to right, patient perspective)
+  lowerRight: [48, 47, 46, 45, 44, 43, 42, 41], // Quadrant 4 (right to left, patient perspective)
+  lowerLeft: [31, 32, 33, 34, 35, 36, 37, 38]   // Quadrant 3 (left to right, patient perspective)
 };
 
 export default function ToothChart() {
@@ -97,6 +93,12 @@ export default function ToothChart() {
   });
   const [saving, setSaving] = useState(false);
 
+  // Add state for modal messages and unsaved changes
+  const [modalMessage, setModalMessage] = useState<string | null>(null);
+  const [modalType, setModalType] = useState<'success' | 'error' | 'unsaved' | null>(null);
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [initialTeethData, setInitialTeethData] = useState<TeethChart | null>(null);
+
   useEffect(() => {
     if (!patientId || typeof patientId !== 'string') return;
 
@@ -110,6 +112,13 @@ export default function ToothChart() {
 
     return () => unsubscribe();
   }, [patientId]);
+
+  // Track initial data for unsaved changes
+  useEffect(() => {
+    if (patient) {
+      setInitialTeethData(patient.teethChart || {});
+    }
+  }, [patient]);
 
   const initializeToothData = (toothNumber: number): ToothData => {
     return {
@@ -182,23 +191,47 @@ export default function ToothChart() {
     }));
   };
 
+  // Helper to check for unsaved changes
+  const hasUnsavedChanges = () => {
+    return JSON.stringify(teethData) !== JSON.stringify(initialTeethData);
+  };
+
+  // Show modal instead of alert on save
   const saveTeethChart = async () => {
     if (!patientId || typeof patientId !== 'string') return;
-    
     setSaving(true);
     try {
       await updateDoc(doc(db, "patients", patientId), {
         teethChart: teethData,
         updatedAt: Date.now()
       });
-      alert('Tooth chart saved successfully!');
+      setModalMessage('Tooth chart saved successfully!');
+      setModalType('success');
+      setInitialTeethData(teethData); // update initial data after save
     } catch (error) {
       console.error('Error saving tooth chart:', error);
-      alert('Failed to save tooth chart. Please try again.');
+      setModalMessage('Failed to save tooth chart. Please try again.');
+      setModalType('error');
     } finally {
       setSaving(false);
     }
   };
+
+  // Intercept navigation away (router/back/close) if unsaved changes
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      if (hasUnsavedChanges()) {
+        setShowUnsavedModal(true);
+        // Prevent navigation
+        router.events.emit('routeChangeError');
+        throw 'Route change aborted due to unsaved changes.';
+      }
+    };
+    router.events.on('routeChangeStart', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange);
+    };
+  }, [teethData, initialTeethData]);
 
   const renderTooth = (toothNumber: number, position: 'top' | 'bottom' = 'top') => {
     const toothData = getToothData(toothNumber);
@@ -423,33 +456,31 @@ export default function ToothChart() {
             variant="h5" 
             textAlign="center" 
             sx={{ 
-              mb: 4, 
+              mb: 2, 
               fontWeight: 'bold',
               fontSize: { xs: '1.25rem', sm: '1.5rem' }
             }}
           >
-            🦷 Adult Tooth Chart (32 Teeth)
+            🦷 FDI Tooth Chart (Permanent Teeth)
           </Typography>
-          
           {/* Upper Jaw */}
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6" textAlign="center" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               Upper Jaw
             </Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={4} justifyContent="center">
-              {renderQuadrant(ADULT_TEETH.upperLeft, 'Upper Left', true)}
-              {renderQuadrant(ADULT_TEETH.upperRight, 'Upper Right')}
+              {renderQuadrant(FDI_TEETH.upperRight, 'Quadrant 1 (Upper Right)')}
+              {renderQuadrant(FDI_TEETH.upperLeft, 'Quadrant 2 (Upper Left)')}
             </Stack>
           </Box>
-
           {/* Lower Jaw */}
           <Box>
             <Typography variant="h6" textAlign="center" sx={{ mb: 2, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               Lower Jaw
             </Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={4} justifyContent="center">
-              {renderQuadrant(ADULT_TEETH.lowerLeft, 'Lower Left', true)}
-              {renderQuadrant(ADULT_TEETH.lowerRight, 'Lower Right')}
+              {renderQuadrant(FDI_TEETH.lowerRight, 'Quadrant 4 (Lower Right)')}
+              {renderQuadrant(FDI_TEETH.lowerLeft, 'Quadrant 3 (Lower Left)')}
             </Stack>
           </Box>
         </Paper>
@@ -503,6 +534,11 @@ export default function ToothChart() {
             </Grid>
           )}
         </Paper>
+
+        {/* Add chart image below the tooth chart */}
+        {/* <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+          <img src="/assets/images/chart.png" alt="Tooth Chart Reference" style={{ maxWidth: '100%', height: 'auto', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }} />
+        </Box> */}
       </Container>
 
       {/* Tooth Detail Dialog */}
@@ -664,6 +700,30 @@ export default function ToothChart() {
           >
             Close
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modal for save/unsaved messages */}
+      <Dialog open={!!modalMessage || showUnsavedModal} onClose={() => { setModalMessage(null); setModalType(null); setShowUnsavedModal(false); }}>
+        <DialogTitle>
+          {modalType === 'success' && 'Success'}
+          {modalType === 'error' && 'Error'}
+          {showUnsavedModal && 'Unsaved Changes'}
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            {modalMessage}
+            {showUnsavedModal && 'Recent changes have not been saved. Kindly save your changes before leaving.'}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          {showUnsavedModal ? (
+            <>
+              <Button onClick={() => setShowUnsavedModal(false)} variant="contained">Cancel</Button>
+            </>
+          ) : (
+            <Button onClick={() => { setModalMessage(null); setModalType(null); }} variant="contained">OK</Button>
+          )}
         </DialogActions>
       </Dialog>
     </>

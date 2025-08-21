@@ -40,11 +40,16 @@ export default function Patients() {
     const form = e.currentTarget as HTMLFormElement;
     const fd = new FormData(form);
     const gender = fd.get("gender") as string;
+      const address = fd.get("address") as string;
     
     if (!gender) {
       alert("Please select a gender");
       return;
     }
+      if (!address || address.trim() === "") {
+        alert("Address is required");
+        return;
+      }
     
     const payload = {
       name: fd.get("name") as string,
@@ -53,6 +58,7 @@ export default function Patients() {
       gender: gender,
       allergies: fd.get("allergies") as string,
       history: fd.get("history") as string,
+        address: address,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
@@ -422,6 +428,14 @@ export default function Patients() {
                 placeholder="+91 XXXXX XXXXX"
                 size="medium"
               />
+                <TextField 
+                  name="address" 
+                  label="🏠 Address" 
+                  required 
+                  variant="outlined"
+                  placeholder="Enter address..."
+                  size="medium"
+                />
               
               <Stack 
                 direction={{ xs: 'column', sm: 'row' }} 

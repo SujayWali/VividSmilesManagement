@@ -134,7 +134,8 @@ export default function PatientDetails() {
           age: patient.age || "",
           gender: patient.gender || "",
           history: patient.history || "",
-          allergies: patient.allergies || ""
+          allergies: patient.allergies || "",
+          address: patient.address || ""
         });
       }
       
@@ -783,6 +784,16 @@ export default function PatientDetails() {
                 }}
               >
                 Phone: {patient.phone} • Age: {patient.age} • Gender: {patient.gender}
+              </Typography>
+              <Typography 
+                variant="body1" 
+                color="text.secondary"
+                sx={{
+                  fontSize: { xs: '0.9rem', sm: '1rem' },
+                  wordBreak: 'break-word'
+                }}
+              >
+                Address: {patient.address || "No address recorded"}
               </Typography>
               <Typography 
                 variant="body1" 

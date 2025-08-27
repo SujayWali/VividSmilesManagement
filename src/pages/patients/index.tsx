@@ -19,7 +19,7 @@ export default function Patients() {
   const role = useRole();
 
   useEffect(()=>{
-    const q = query(collection(db, "patients"), orderBy("name"));
+    const q = query(collection(db, "patients"), orderBy("createdAt", "desc"));
     return onSnapshot(q, (snap)=>{
       setItems(snap.docs.map(d => ({ id: d.id, ...(d.data() as any) })));
     });

@@ -371,23 +371,43 @@ export default function PatientDetails() {
     const files = event.target.files;
     if (!files || !id) return;
 
+    const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15 MB
+    const MAX_FIRESTORE_FIELD_SIZE = 1048487; // ~1 MB
     for (const file of Array.from(files)) {
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`File "${file.name}" is too large. Maximum allowed size is 15 MB.`);
+        continue;
+      }
       try {
-        // Convert file to base64
-        const reader = new FileReader();
-        reader.onload = async () => {
-          const base64Data = reader.result as string;
-          
-          // Save to Firestore
+        if (file.size > MAX_FIRESTORE_FIELD_SIZE) {
+          // Use Firebase Storage for large files
+          const { ref, uploadBytes, getDownloadURL } = await import("firebase/storage");
+          const { storage } = await import("../../lib/firebase");
+          const storageRef = ref(storage, `prescriptions/${id}/${Date.now()}_${file.name}`);
+          const snapshot = await uploadBytes(storageRef, file);
+          const downloadURL = await getDownloadURL(snapshot.ref);
           await addDoc(collection(db, "patients", id, "prescriptions"), {
             fileName: file.name,
             fileType: file.type,
             fileSize: file.size,
             uploadDate: new Date().toISOString(),
-            fileData: base64Data
+            fileUrl: downloadURL
           });
-        };
-        reader.readAsDataURL(file);
+        } else {
+          // Small files: store as base64 in Firestore
+          const reader = new FileReader();
+          reader.onload = async () => {
+            const base64Data = reader.result as string;
+            await addDoc(collection(db, "patients", id, "prescriptions"), {
+              fileName: file.name,
+              fileType: file.type,
+              fileSize: file.size,
+              uploadDate: new Date().toISOString(),
+              fileData: base64Data
+            });
+          };
+          reader.readAsDataURL(file);
+        }
       } catch (error) {
         console.error("Error uploading prescription:", error);
         alert("Failed to upload prescription. Please try again.");
@@ -410,7 +430,11 @@ export default function PatientDetails() {
   function downloadPrescription(prescription: any) {
     try {
       const link = document.createElement('a');
-      link.href = prescription.fileData;
+      if (prescription.fileUrl) {
+        link.href = prescription.fileUrl;
+      } else {
+        link.href = prescription.fileData;
+      }
       link.download = prescription.fileName;
       document.body.appendChild(link);
       link.click();

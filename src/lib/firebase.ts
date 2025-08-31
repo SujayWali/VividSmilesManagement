@@ -40,5 +40,8 @@ try {
   throw new Error(`Firebase initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
 }
 
+
+import { getStorage } from "firebase/storage";
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const storage = getStorage(app);

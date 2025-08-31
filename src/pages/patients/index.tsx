@@ -6,6 +6,7 @@ import { collection, addDoc, serverTimestamp, onSnapshot, orderBy, query, doc, d
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRole } from "@/hooks/useRole";
+import * as XLSX from 'xlsx';
 
 export default function Patients() {
   const [open, setOpen] = useState(false);
@@ -18,11 +19,19 @@ export default function Patients() {
   const itemsPerPage = 20;
   const role = useRole();
 
-  useEffect(()=>{
+  useEffect(() => {
     const q = query(collection(db, "patients"), orderBy("createdAt", "desc"));
-    return onSnapshot(q, (snap)=>{
-      setItems(snap.docs.map(d => ({ id: d.id, ...(d.data() as any) })));
+    const unsub = onSnapshot(q, async (snap) => {
+      const patients = await Promise.all(snap.docs.map(async d => {
+        const patient = { id: d.id, ...(d.data() as any) };
+        // Fetch visits for each patient
+        const visitsSnap = await getDocs(collection(db, "patients", patient.id, "visits"));
+        patient.visits = visitsSnap.docs.map(vd => vd.data());
+        return patient;
+      }));
+      setItems(patients);
     });
+    return unsub;
   }, []);
 
   const filtered = useMemo(()=> items.filter(p => (p.name+ p.phone).toLowerCase().includes(filter.toLowerCase())), [items, filter]);
@@ -105,6 +114,43 @@ export default function Patients() {
     setPatientToDelete(null);
   }
 
+  // Fix type error by using type assertion for visits
+  function exportPatientsToExcel(patients: Patient[]) {
+    const data: any[] = [];
+    patients.forEach(p => {
+      const base = {
+        Name: p.name,
+        Phone: p.phone,
+        Age: p.age,
+        Gender: p.gender,
+        Address: p.address,
+        Allergies: p.allergies,
+        History: p.history,
+        CreatedAt: p.createdAt ? new Date(p.createdAt).toLocaleString() : '',
+        UpdatedAt: p.updatedAt ? new Date(p.updatedAt).toLocaleString() : ''
+      };
+      const visits = (p as any).visits || [];
+      if (Array.isArray(visits) && visits.length > 0) {
+        visits.forEach((v: any) => {
+          data.push({
+            ...base,
+            VisitDate: v.date,
+            Treatment: v.treatment,
+            Medicines: v.medicines ? v.medicines.join(', ') : '',
+            Payment: v.payment,
+            PaymentStatus: v.paymentStatus
+          });
+        });
+      } else {
+        data.push(base);
+      }
+    });
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Patients');
+    XLSX.writeFile(workbook, 'patients_export.xlsx');
+  }
+
   return (
     <>
       <AppBar position="static" color="primary">
@@ -165,20 +211,32 @@ export default function Patients() {
                 Manage your dental practice patients efficiently
               </Typography>
             </Box>
-            <Button 
-              variant="contained" 
-              size="large"
-              startIcon={<Add/>} 
-              onClick={()=>setOpen(true)}
-              sx={{ 
-                textTransform: 'none',
-                fontSize: { xs: '0.9rem', sm: '1rem' },
-                px: { xs: 2, sm: 3 },
-                width: { xs: '100%', sm: 'auto' }
-              }}
-            >
-              Add New Patient
-            </Button>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Button 
+                variant="contained" 
+                size="large"
+                startIcon={<Add/>} 
+                onClick={()=>setOpen(true)}
+                sx={{ 
+                  textTransform: 'none',
+                  fontSize: { xs: '0.9rem', sm: '1rem' },
+                  px: { xs: 2, sm: 3 },
+                  width: { xs: '100%', sm: 'auto' }
+                }}
+              >
+                Add New Patient
+              </Button>
+              {role === 'admin' && (
+                <Button
+                  variant="outlined"
+                  color="success"
+                  sx={{ textTransform: 'none', fontWeight: 500 }}
+                  onClick={() => exportPatientsToExcel(items)}
+                >
+                  📤 Export Patient Data to Excel
+                </Button>
+              )}
+            </Stack>
           </Stack>
         </Paper>
 

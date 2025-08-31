@@ -271,8 +271,9 @@ export default function PatientDetails() {
 
   const uploadPrescriptions = async () => {
     if (!id || selectedPrescriptions.length === 0) return;
-    
+
     setIsUploadingPrescription(true);
+    let allSuccess = true;
     try {
       for (const file of selectedPrescriptions) {
         const fileData = await new Promise<string>((resolve) => {
@@ -281,18 +282,26 @@ export default function PatientDetails() {
           reader.readAsDataURL(file);
         });
 
-        await addDoc(collection(db, "patients", id, "prescriptions"), {
-          fileName: file.name,
-          fileSize: file.size,
-          fileType: file.type,
-          fileData: fileData,
-          uploadDate: new Date().toISOString(),
-          uploadTime: new Date().getTime()
-        });
+        try {
+          await addDoc(collection(db, "patients", id, "prescriptions"), {
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            fileData: fileData,
+            uploadDate: new Date().toISOString(),
+            uploadTime: new Date().getTime()
+          });
+        } catch (err) {
+          allSuccess = false;
+          console.error("Error uploading prescription:", err);
+        }
       }
-      
-      setSelectedPrescriptions([]);
-      alert("Prescriptions uploaded successfully!");
+      if (allSuccess) {
+        setSelectedPrescriptions([]);
+        alert("Prescriptions uploaded successfully!");
+      } else {
+        alert("Some prescriptions failed to upload. Please check and try again.");
+      }
     } catch (error) {
       console.error("Error uploading prescriptions:", error);
       alert("Failed to upload prescriptions. Please try again.");

@@ -206,6 +206,26 @@ export default function Patients() {
     return null;
   }
 
+  function formatLocalDate(ms?: number | null): string {
+    if (ms == null) return "";
+    const d = new Date(ms);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${day}-${m}-${y}`; // dd-mm-yyyy
+  }
+
+  function formatLocalDateTime(ms?: number | null): string {
+    if (ms == null) return "";
+    const d = new Date(ms);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
+    return `${day}-${m}-${y} ${hh}:${mm}`;
+  }
+
   // Enhanced export with date range + mode
   function exportPatientsToExcel() {
     const fromMs = toMillisFromInputDate(exportFrom);
@@ -222,12 +242,8 @@ export default function Patients() {
         Address: (p as any).address,
         Allergies: p.allergies,
         History: p.history,
-        CreatedAt: p.createdAt
-          ? new Date(anyDateToMillis(p.createdAt) || 0).toLocaleString()
-          : "",
-        UpdatedAt: p.updatedAt
-          ? new Date(anyDateToMillis(p.updatedAt) || 0).toLocaleString()
-          : "",
+        CreatedAt: formatLocalDate(anyDateToMillis(p.createdAt)),
+        UpdatedAt: formatLocalDate(anyDateToMillis(p.updatedAt)),
       };
 
       const visits = (p as any).visits || [];
@@ -249,7 +265,7 @@ export default function Patients() {
             const vd = anyDateToMillis(v?.date);
             rows.push({
               ...base,
-              VisitDate: vd ? new Date(vd).toLocaleDateString() : "",
+              VisitDate: formatLocalDate(vd),
               Treatment: v?.treatment ?? "",
               Medicines: Array.isArray(v?.medicines)
                 ? v.medicines.join(", ")

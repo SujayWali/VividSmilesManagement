@@ -470,6 +470,30 @@ export default function AppointmentsPage() {
 
   const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
 
+  // Quick jump helpers for summary cards
+  const jumpToListAndFilter = (status: string) => {
+    setFilterStatus(status);
+    // Show all dates by switching to single-date mode and clearing the date
+    setDateRangeMode(false);
+    setFilterDate("");
+    // Smooth scroll to the appointments table
+    setTimeout(() => {
+      const el = document.getElementById("appointments-list");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  };
+
+  const jumpToToday = () => {
+    setDateRangeMode(false);
+    const today = new Date().toISOString().split('T')[0];
+    setFilterDate(today);
+    setFilterStatus("All");
+    setTimeout(() => {
+      const el = document.getElementById("appointments-list");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  };
+
   useEffect(() => {
     const result = appointments.filter(appointment => {
       // Date filtering logic
@@ -577,7 +601,7 @@ export default function AppointmentsPage() {
           {/* Today's Summary */}
           <Grid container spacing={2} sx={{ mb: 2 }}>
             <Grid item xs={12} sm={6} md={3}>
-              <Card elevation={4} sx={{ mb: { xs: 2, sm: 0 } }}>
+              <Card elevation={4} sx={{ mb: { xs: 2, sm: 0 }, cursor: 'pointer' }} onClick={jumpToToday}>
                 <CardContent>
                   <Stack direction="row" alignItems="center" spacing={2}>
                     <Avatar sx={{ bgcolor: '#4CAF50' }}>
@@ -596,7 +620,7 @@ export default function AppointmentsPage() {
               </Card>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Card elevation={4} sx={{ mb: { xs: 2, sm: 0 } }}>
+              <Card elevation={4} sx={{ mb: { xs: 2, sm: 0 }, cursor: 'pointer' }} onClick={() => jumpToListAndFilter('Scheduled')}>
                 <CardContent>
                   <Stack direction="row" alignItems="center" spacing={2}>
                     <Avatar sx={{ bgcolor: '#2196F3' }}>
@@ -634,7 +658,7 @@ export default function AppointmentsPage() {
               </Card>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <Card elevation={4} sx={{ mb: { xs: 2, sm: 0 } }}>
+              <Card elevation={4} sx={{ mb: { xs: 2, sm: 0 }, cursor: 'pointer' }} onClick={() => jumpToListAndFilter('Completed')}>
                 <CardContent>
                   <Stack direction="row" alignItems="center" spacing={2}>
                     <Avatar sx={{ bgcolor: '#9C27B0' }}>
@@ -823,7 +847,7 @@ export default function AppointmentsPage() {
                   </Button>
                 </Box>
               ) : (
-                <Box sx={{ width: '100%', overflowX: 'auto' }}>
+                <Box sx={{ width: '100%', overflowX: 'auto' }} id="appointments-list">
                   <TableContainer component={Paper} variant="outlined" sx={{ minWidth: 600 }}>
                     <Table size="small">
                       <TableHead>

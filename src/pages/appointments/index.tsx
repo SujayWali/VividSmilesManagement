@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { db } from "@/lib/firebase";
 import { Appointment, Patient } from "@/types/models";
+import { AgeUnit, getAgeUnit } from "@/utils/patientAge";
 import {
   collection,
   getDocs,
@@ -121,6 +122,7 @@ export default function AppointmentsPage() {
     patientEmail: string;
     patientAddress: string;
     patientAge: string;
+    patientAgeUnit: AgeUnit;
     patientGender: string;
     date: string;
     time: string;
@@ -133,6 +135,7 @@ export default function AppointmentsPage() {
     patientEmail: "",
     patientAddress: "",
     patientAge: "",
+    patientAgeUnit: "years",
     patientGender: "",
     date: new Date().toISOString().split('T')[0],
     time: "",
@@ -222,10 +225,18 @@ export default function AppointmentsPage() {
         // Age validation only if provided
         if (formData.patientAge && formData.patientAge.trim() !== "") {
           const age = parseInt(formData.patientAge);
-          if (isNaN(age) || age < 0 || age > 150) {
+          if (
+            isNaN(age) ||
+            age < 0 ||
+            (formData.patientAgeUnit === "years" && age > 150) ||
+            (formData.patientAgeUnit === "months" && age > 36)
+          ) {
             setSnackbar({
               open: true,
-              message: "Please enter a valid age (0-150)",
+              message:
+                formData.patientAgeUnit === "months"
+                  ? "Please enter a valid age (0-36 months)"
+                  : "Please enter a valid age (0-150 years)",
               severity: "error"
             });
             return;
@@ -264,6 +275,7 @@ export default function AppointmentsPage() {
           email: formData.patientEmail || "",
           address: formData.patientAddress || "",
           age: formData.patientAge ? parseInt(formData.patientAge) : null,
+          ageUnit: formData.patientAgeUnit,
           gender: formData.patientGender || "",
           createdAt: Date.now(),
           updatedAt: Date.now()
@@ -439,7 +451,8 @@ export default function AppointmentsPage() {
       patientPhone: appointment.patientPhone,
       patientEmail: patient?.email || "",
       patientAddress: patient?.address || "",
-      patientAge: patient?.age ? patient.age.toString() : "",
+      patientAge: patient?.age != null ? patient.age.toString() : "",
+      patientAgeUnit: getAgeUnit(patient),
       patientGender: patient?.gender || "",
       date: appointment.date,
       time: appointment.time,
@@ -457,6 +470,7 @@ export default function AppointmentsPage() {
       patientEmail: "",
       patientAddress: "",
       patientAge: "",
+      patientAgeUnit: "years",
       patientGender: "",
       date: new Date().toISOString().split('T')[0],
       time: "",
@@ -970,6 +984,7 @@ export default function AppointmentsPage() {
                           patientEmail: "",
                           patientAddress: "",
                           patientAge: "",
+                          patientAgeUnit: "years",
                           patientGender: ""
                         });
                       }
@@ -996,7 +1011,8 @@ export default function AppointmentsPage() {
                         patientPhone: newValue.phone,
                         patientEmail: newValue.email || "",
                         patientAddress: newValue.address || "",
-                        patientAge: newValue.age ? newValue.age.toString() : "",
+                        patientAge: newValue.age != null ? newValue.age.toString() : "",
+                        patientAgeUnit: getAgeUnit(newValue),
                         patientGender: newValue.gender || ""
                       });
                     } else {
@@ -1007,6 +1023,7 @@ export default function AppointmentsPage() {
                         patientEmail: "",
                         patientAddress: "",
                         patientAge: "",
+                        patientAgeUnit: "years",
                         patientGender: ""
                       });
                     }
@@ -1055,15 +1072,32 @@ export default function AppointmentsPage() {
                   />
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Age"
-                    type="number"
-                    value={formData.patientAge}
-                    onChange={(e) => setFormData({ ...formData, patientAge: e.target.value })}
-                    inputProps={{ min: 0, max: 150 }}
-                    helperText="Patient age in years (optional)"
-                  />
+                  <Stack direction="row" spacing={1}>
+                    <TextField
+                      fullWidth
+                      label="Age"
+                      type="number"
+                      value={formData.patientAge}
+                      onChange={(e) => setFormData({ ...formData, patientAge: e.target.value })}
+                      inputProps={{ min: 0 }}
+                      helperText="Optional"
+                    />
+                    <TextField
+                      select
+                      label="Unit"
+                      value={formData.patientAgeUnit}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          patientAgeUnit: e.target.value as AgeUnit,
+                        })
+                      }
+                      sx={{ minWidth: 120 }}
+                    >
+                      <MenuItem value="years">Years</MenuItem>
+                      <MenuItem value="months">Months</MenuItem>
+                    </TextField>
+                  </Stack>
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <TextField

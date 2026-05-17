@@ -42,6 +42,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRole } from "@/hooks/useRole";
 import * as XLSX from "xlsx";
+import { AgeUnit, formatPatientAge } from "@/utils/patientAge";
 
 export default function Patients() {
   const [open, setOpen] = useState(false);
@@ -101,6 +102,8 @@ export default function Patients() {
     const fd = new FormData(form);
     const gender = fd.get("gender") as string;
     const address = fd.get("address") as string;
+    const age = Number(fd.get("age"));
+    const ageUnit = (fd.get("ageUnit") as AgeUnit) || "years";
 
     if (!gender) {
       alert("Please select a gender");
@@ -110,11 +113,25 @@ export default function Patients() {
       alert("Address is required");
       return;
     }
+    if (
+      Number.isNaN(age) ||
+      age < 0 ||
+      (ageUnit === "years" && age > 150) ||
+      (ageUnit === "months" && age > 36)
+    ) {
+      alert(
+        ageUnit === "months"
+          ? "Please enter age between 0 and 36 months"
+          : "Please enter age between 0 and 150 years"
+      );
+      return;
+    }
 
     const payload = {
       name: fd.get("name") as string,
       phone: fd.get("phone") as string,
-      age: Number(fd.get("age")),
+      age,
+      ageUnit,
       gender: gender,
       allergies: fd.get("allergies") as string,
       history: fd.get("history") as string,
@@ -237,7 +254,7 @@ export default function Patients() {
       const base = {
         Name: p.name,
         Phone: p.phone,
-        Age: p.age,
+        Age: formatPatientAge(p),
         Gender: p.gender,
         Address: (p as any).address,
         Allergies: p.allergies,
@@ -528,7 +545,7 @@ export default function Patients() {
                         </Typography>
                         <Stack direction="row" spacing={1} flexWrap="wrap">
                           <Chip
-                            label={`${p.age} years`}
+                            label={formatPatientAge(p)}
                             size="small"
                             color="primary"
                             variant="outlined"
@@ -748,8 +765,22 @@ export default function Patients() {
                   required
                   variant="outlined"
                   size="medium"
+                  inputProps={{ min: 0 }}
                   sx={{ flex: 1 }}
                 />
+                <FormControl sx={{ flex: 1 }} required>
+                  <InputLabel>Unit</InputLabel>
+                  <Select
+                    name="ageUnit"
+                    label="Unit"
+                    defaultValue="years"
+                    required
+                    size="medium"
+                  >
+                    <MenuItem value="years">Years</MenuItem>
+                    <MenuItem value="months">Months</MenuItem>
+                  </Select>
+                </FormControl>
                 <FormControl sx={{ flex: 1 }} required>
                   <InputLabel>⚧️ Gender</InputLabel>
                   <Select

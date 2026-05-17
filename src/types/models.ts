@@ -11,7 +11,8 @@ export type Patient = {
   id: string;
   name: string;
   phone: string;
-  age?: number;
+  age?: number | null;
+  ageUnit?: "years" | "months";
   gender?: "Male" | "Female" | "Other" | "Prefer not to say" | "";
   email?: string;
   address?: string;

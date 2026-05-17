@@ -71,6 +71,7 @@ function AudioRecorder() {
 import { db } from "@/lib/firebase";
 import { useRole } from "@/hooks/useRole";
 import { Visit } from "@/types/models";
+import { formatPatientAge, getAgeUnit } from "@/utils/patientAge";
 import { Delete, Send, Edit, Save, Cancel, ArrowBack, Image as ImageIcon, CloudUpload, Download, LocalHospital } from "@mui/icons-material";
 import { AppBar, Box, Button, Container, IconButton, List, ListItem, ListItemText, Stack, TextField, Toolbar, Typography, Paper, Divider, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Chip, CircularProgress } from "@mui/material";
 import { addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from "firebase/firestore";
@@ -88,6 +89,7 @@ export default function PatientDetails() {
   const router = useRouter();
   const id = router.query.id as string | undefined;
   const role = useRole();
+  const canEditPatientData = role === "admin" || role === "manager";
   const [patient, setPatient] = useState<any>(null);
   const [visits, setVisits] = useState<Visit[]>([]);
   const [editableMessage, setEditableMessage] = useState("");
@@ -119,7 +121,7 @@ export default function PatientDetails() {
     if (patient && visits.length >= 0) {
       const latest = visits[0];
       const meds = (latest?.medicines || []).join(", ");
-      const defaultMessage = `Vivid Smiles Complete Dental Care\nDate: ${latest?.date ?? ""}\n\nName: ${patient.name}\n\nAge: ${patient.age} | Gender: ${patient.gender}\n\nDental History: ${patient.history || "First visit"}\n\nTreatment: ${latest?.treatment || "-"}\n\nPrescribed: ${meds || "-"}\n\nFor Appointments: +91 8920851141 | www.vividsmiles.in`;
+      const defaultMessage = `Vivid Smiles Complete Dental Care\nDate: ${latest?.date ?? ""}\n\nName: ${patient.name}\n\nAge: ${formatPatientAge(patient)} | Gender: ${patient.gender}\n\nDental History: ${patient.history || "First visit"}\n\nTreatment: ${latest?.treatment || "-"}\n\nPrescribed: ${meds || "-"}\n\nFor Appointments: +91 8920851141 | www.vividsmiles.in`;
       
       // Only update if we're not currently editing the message
       if (!isEditingMessage) {
@@ -131,7 +133,8 @@ export default function PatientDetails() {
         setEditablePatient({
           name: patient.name || "",
           phone: patient.phone || "",
-          age: patient.age || "",
+          age: patient.age ?? "",
+          ageUnit: getAgeUnit(patient),
           gender: patient.gender || "",
           history: patient.history || "",
           allergies: patient.allergies || "",
@@ -155,7 +158,7 @@ export default function PatientDetails() {
         const defaultRichMessage = `<h3>Vivid Smiles Complete Dental Care</h3>
 <p><strong>Date:</strong> ${messageDate}</p>
 <p><strong>Name:</strong> ${patient.name}</p>
-<p><strong>Age:</strong> ${patient.age} | <strong>Gender:</strong> ${patient.gender}</p>
+<p><strong>Age:</strong> ${formatPatientAge(patient)} | <strong>Gender:</strong> ${patient.gender}</p>
 <p><strong>Dental History:</strong> ${patient.history || "First visit"}</p>
 <p><strong>Treatment:</strong> ${latest?.treatment || "-"}</p>
 <p><strong>Prescribed:</strong> ${meds || "-"}</p>
@@ -170,7 +173,7 @@ export default function PatientDetails() {
     if (!patient) return "";
     const latest = visits[0];
     const meds = (latest?.medicines || []).join(", ");
-    return `Vivid Smiles Complete Dental Care\nDate: ${latest?.date ?? ""}\n\nName: ${patient.name}\n\nAge: ${patient.age} | Gender: ${patient.gender}\n\nDental History: ${patient.history || "First visit"}\n\nTreatment: ${latest?.treatment || "-"}\n\nPrescribed: ${meds || "-"}\n\nFor Appointments: +91 8920851141 | www.vividsmiles.in`;
+    return `Vivid Smiles Complete Dental Care\nDate: ${latest?.date ?? ""}\n\nName: ${patient.name}\n\nAge: ${formatPatientAge(patient)} | Gender: ${patient.gender}\n\nDental History: ${patient.history || "First visit"}\n\nTreatment: ${latest?.treatment || "-"}\n\nPrescribed: ${meds || "-"}\n\nFor Appointments: +91 8920851141 | www.vividsmiles.in`;
   }, [patient, visits]);
 
   const getPaymentStatusColor = (status: string) => {
@@ -311,16 +314,37 @@ export default function PatientDetails() {
   };
 
   async function savePatientInfo() {
+    if (!canEditPatientData) {
+      alert("You do not have permission to edit patient information.");
+      return;
+    }
     if (!editablePatient.address || editablePatient.address.trim() === "") {
   alert("Address is required.");
   return;
 }
     if (!id || !editablePatient) return;
+    const age = editablePatient.age === "" ? null : Number(editablePatient.age);
+    const ageUnit = editablePatient.ageUnit || "years";
+    if (
+      age !== null &&
+      (Number.isNaN(age) ||
+        age < 0 ||
+        (ageUnit === "years" && age > 150) ||
+        (ageUnit === "months" && age > 36))
+    ) {
+      alert(
+        ageUnit === "months"
+          ? "Please enter age between 0 and 36 months."
+          : "Please enter age between 0 and 150 years."
+      );
+      return;
+    }
     try {
       await updateDoc(doc(db, "patients", id), {
         name: editablePatient.name,
         phone: editablePatient.phone,
-        age: editablePatient.age,
+        age,
+        ageUnit,
         gender: editablePatient.gender,
         history: editablePatient.history,
         allergies: editablePatient.allergies,
@@ -338,7 +362,8 @@ export default function PatientDetails() {
       setEditablePatient({
         name: patient.name || "",
         phone: patient.phone || "",
-        age: patient.age || "",
+        age: patient.age ?? "",
+        ageUnit: getAgeUnit(patient),
         gender: patient.gender || "",
         history: patient.history || "",
         allergies: patient.allergies || ""
@@ -348,6 +373,10 @@ export default function PatientDetails() {
   }
 
   async function saveNotes() {
+    if (!canEditPatientData) {
+      alert("You do not have permission to edit patient notes.");
+      return;
+    }
     if (!id) return;
     try {
       await updateDoc(doc(db, "patients", id), {
@@ -693,6 +722,7 @@ export default function PatientDetails() {
               Patient Information
             </Typography>
             {!isEditingPatient ? (
+              canEditPatientData && (
               <Button 
                 size="small" 
                 startIcon={<Edit/>} 
@@ -704,6 +734,7 @@ export default function PatientDetails() {
               >
                 Edit
               </Button>
+              )
             ) : (
               <Stack direction="row" spacing={1} flexWrap="wrap">
                 <Button 
@@ -746,11 +777,24 @@ export default function PatientDetails() {
                 />
                 <TextField
                   label="Age"
+                  type="number"
                   value={editablePatient.age}
                   onChange={(e) => setEditablePatient({...editablePatient, age: e.target.value})}
+                  inputProps={{ min: 0 }}
                   size="small"
                   sx={{ width: { xs: '100%', sm: 100 } }}
                 />
+                <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 120 } }}>
+                  <InputLabel>Unit</InputLabel>
+                  <Select
+                    value={editablePatient.ageUnit || "years"}
+                    onChange={(e) => setEditablePatient({...editablePatient, ageUnit: e.target.value})}
+                    label="Unit"
+                  >
+                    <MenuItem value="years">Years</MenuItem>
+                    <MenuItem value="months">Months</MenuItem>
+                  </Select>
+                </FormControl>
                 <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 120 } }}>
                   <InputLabel>Gender</InputLabel>
                   <Select
@@ -816,7 +860,7 @@ export default function PatientDetails() {
                   wordBreak: 'break-word'
                 }}
               >
-                Phone: {patient.phone} • Age: {patient.age} • Gender: {patient.gender}
+                Phone: {patient.phone} • Age: {formatPatientAge(patient)} • Gender: {patient.gender}
               </Typography>
               <Typography 
                 variant="body1" 
@@ -1069,6 +1113,7 @@ export default function PatientDetails() {
                 📝 Patient Notes
               </Typography>
               {!isEditingNotes ? (
+                canEditPatientData && (
                 <Button 
                   size="small" 
                   startIcon={<Edit/>} 
@@ -1080,6 +1125,7 @@ export default function PatientDetails() {
                 >
                   Edit Notes
                 </Button>
+                )
               ) : (
                 <Stack direction="row" spacing={1} flexWrap="wrap">
                   <Button 

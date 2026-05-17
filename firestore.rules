@@ -16,7 +16,8 @@ service cloud.firestore {
     match /patients/{patientId} {
       allow read, list: if isSignedIn();
       allow create: if isAdmin() || isManager();
-      allow update, delete: if isAdmin();
+      allow update: if isAdmin() || isManager();
+      allow delete: if isAdmin();
       match /visits/{visitId} {
         allow read, list: if isSignedIn();
         allow create: if isAdmin() || isManager();
